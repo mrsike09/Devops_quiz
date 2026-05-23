@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TriviaGlow - Interactive Quiz App{% endblock %}</title>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <header class="glass">
+        <div class="container navbar">
+            <a href="{{ url_for('dashboard') }}" class="logo">
+                <i data-lucide="brain-circuit"></i> TriviaGlow
+                <span>v1.0</span>
+            </a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Dashboard</a></li>
+                    <li><a href="{{ url_for('leaderboard') }}" class="nav-link {% if request.path == '/leaderboard' %}active{% endif %}">Leaderboard</a></li>
+                    {% if session.get('user_id') %}
+                        <li><a href="{{ url_for('quiz_create') }}" class="nav-link {% if request.path == '/quiz/create' %}active{% endif %}">Create Quiz</a></li>
+                        <li><a href="{{ url_for('profile') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a></li>
+                        <li><a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Log Out</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}" class="nav-link {% if request.path == '/login' %}active{% endif %}">Login</a></li>
+                        <li><a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {% if category == 'success' %}
+                                <i data-lucide="check-circle-2"></i>
+                            {% elif category == 'danger' %}
+                                <i data-lucide="alert-octagon"></i>
+                            {% elif category == 'warning' %}
+                                <i data-lucide="alert-triangle"></i>
+                            {% else %}
+                                <i data-lucide="info"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="db-status-bar">
+        <span>Connected to database type: </span>
+        {% if db_status.is_fallback %}
+            <span class="db-badge db-badge-fallback"><i data-lucide="database" style="display:inline-block; width:12px; height:12px; vertical-align:-1px;"></i> Local JSON Fallback File</span>
+        {% else %}
+            <span class="db-badge db-badge-mongo"><i data-lucide="database" style="display:inline-block; width:12px; height:12px; vertical-align:-1px;"></i> MongoDB Server (Active)</span>
+        {% endif %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 TriviaGlow. Created with Flask and MongoDB.</p>
+        </div>
+    </footer>
+
+    <!-- Initialize Lucide icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

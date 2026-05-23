@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Create Quiz - TriviaGlow{% endblock %}
+
+{% block content %}
+<div class="creator-wrapper">
+    <div class="creator-card glass">
+        <h2 style="font-size: 26px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="plus-circle" style="color: var(--secondary);"></i> Create Custom Quiz
+        </h2>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">
+            Design your own custom quiz and share it! Build questions, specify correct answers, and provide educational explanations.
+        </p>
+
+        <form action="{{ url_for('quiz_create') }}" method="POST" id="quiz-creation-form">
+            <!-- Quiz metadata -->
+            <div class="form-group">
+                <label for="title" class="form-label">Quiz Title</label>
+                <input type="text" id="title" name="title" class="form-input" placeholder="e.g., European Capital Cities" required maxlength="100">
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" name="description" class="form-input" rows="3" placeholder="Provide a brief description of what this quiz tests..." required maxlength="300"></textarea>
+            </div>
+
+            <div class="creator-options-grid">
+                <div class="form-group">
+                    <label for="category" class="form-label">Category</label>
+                    <input type="text" id="category" name="category" class="form-input" placeholder="e.g., History, Science, Pop Culture" required list="categories-list">
+                    <datalist id="categories-list">
+                        <option value="Technology">
+                        <option value="Science">
+                        <option value="Geography">
+                        <option value="History">
+                        <option value="Literature">
+                        <option value="General">
+                    </datalist>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficulty" class="form-label">Difficulty</label>
+                    <select id="difficulty" name="difficulty" class="form-input select-input" style="width: 100%;">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="time_limit" class="form-label">Time Limit (Minutes)</label>
+                    <input type="number" id="time_limit" name="time_limit" class="form-input" min="0" max="60" value="5" placeholder="0 for no limit">
+                    <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">Set to 0 for a relaxed, untimed quiz.</span>
+                </div>
+            </div>
+
+            <h3 style="margin: 40px 0 20px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span>Questions</span>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addQuestion()"><i data-lucide="plus"></i> Add Question</button>
+            </h3>
+
+            <!-- Questions container -->
+            <div id="questions-container">
+                <!-- Question cards will be appended here dynamically -->
+            </div>
+
+            <div style="margin-top: 40px; display: flex; justify-content: flex-end; gap: 16px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Publish Quiz</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let questionCount = 0;
+
+    function addQuestion() {
+        questionCount++;
+        const container = document.getElementById('questions-container');
+        
+        const qCard = document.createElement('div');
+        qCard.className = 'question-creator-item glass';
+        qCard.id = `qcard_${questionCount}`;
+        
+        qCard.innerHTML = `
+            <div class="question-creator-header">
+                <span class="question-creator-title">Question #${questionCount}</span>
+                <button type="button" class="btn btn-danger btn-sm btn-remove-q" onclick="removeQuestion(${questionCount})">
+                    <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Question Text</label>
+                <input type="text" name="qtext_${questionCount}" class="form-input" placeholder="Enter question question here..." required>
+            </div>
+            
+            <label class="form-label">Options (Choose the correct option using the radio button)</label>
+            <div class="creator-options-grid">
+                <div class="creator-option-input-group">
+                    <input type="radio" name="qcorrect_${questionCount}" value="0" class="creator-radio" checked>
+                    <input type="text" name="qopt_${questionCount}_0" class="form-input" placeholder="Option A" required>
+                </div>
+                <div class="creator-option-input-group">
+                    <input type="radio" name="qcorrect_${questionCount}" value="1" class="creator-radio">
+                    <input type="text" name="qopt_${questionCount}_1" class="form-input" placeholder="Option B" required>
+                </div>
+                <div class="creator-option-input-group">
+                    <input type="radio" name="qcorrect_${questionCount}" value="2" class="creator-radio">
+                    <input type="text" name="qopt_${questionCount}_2" class="form-input" placeholder="Option C" required>
+                </div>
+                <div class="creator-option-input-group">
+                    <input type="radio" name="qcorrect_${questionCount}" value="3" class="creator-radio">
+                    <input type="text" name="qopt_${questionCount}_3" class="form-input" placeholder="Option D" required>
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Explanation (Optional)</label>
+                <input type="text" name="qexp_${questionCount}" class="form-input" placeholder="Explain why the chosen answer is correct...">
+            </div>
+        `;
+        
+        container.appendChild(qCard);
+        lucide.createIcons();
+        
+        // Scroll to the new question card smoothly
+        qCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function removeQuestion(id) {
+        const qCard = document.getElementById(`qcard_${id}`);
+        if (qCard) {
+            qCard.remove();
+            reindexQuestions();
+        }
+    }
+
+    function reindexQuestions() {
+        const cards = document.querySelectorAll('.question-creator-item');
+        questionCount = 0;
+        
+        cards.forEach((card, idx) => {
+            questionCount = idx + 1;
+            card.id = `qcard_${questionCount}`;
+            
+            // Update Title
+            card.querySelector('.question-creator-title').innerText = `Question #${questionCount}`;
+            
+            // Update remove button call
+            const removeBtn = card.querySelector('.btn-remove-q');
+            removeBtn.setAttribute('onclick', `removeQuestion(${questionCount})`);
+            
+            // Update inputs
+            card.querySelector('input[name^="qtext_"]').name = `qtext_${questionCount}`;
+            
+            // Update radios
+            card.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.name = `qcorrect_${questionCount}`;
+            });
+            
+            // Update options
+            for (let i = 0; i < 4; i++) {
+                card.querySelector(`input[name^="qopt_"][name$="_${i}"]`).name = `qopt_${questionCount}_${i}`;
+            }
+            
+            // Update explanation
+            const expInput = card.querySelector('input[name^="qexp_"]');
+            if (expInput) {
+                expInput.name = `qexp_${questionCount}`;
+            }
+        });
+    }
+
+    // Initialize with 3 questions
+    window.addEventListener('DOMContentLoaded', () => {
+        addQuestion();
+        addQuestion();
+        addQuestion();
+    });
+
+    // Form verification before submit
+    document.getElementById('quiz-creation-form').addEventListener('submit', function(e) {
+        if (questionCount === 0) {
+            e.preventDefault();
+            alert("Please add at least one question before publishing.");
+        }
+    });
+</script>
+{% endblock %}

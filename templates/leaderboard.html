@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - TriviaGlow{% endblock %}
+
+{% block content %}
+<div class="lb-wrapper">
+    <div class="lb-card glass">
+        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i data-lucide="trophy" style="color: #ffd700;"></i> Global Leaderboard
+        </h2>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 30px;">
+            Compete for the top spot. High scores are ranked by score percentage and completion speed.
+        </p>
+        
+        <!-- Category Filter Pills -->
+        <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
+            <a href="{{ url_for('leaderboard') }}" class="btn {% if not selected_category %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">
+                All Categories
+            </a>
+            {% for cat in categories %}
+                <a href="{{ url_for('leaderboard', category=cat) }}" class="btn {% if selected_category == cat %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">
+                    {{ cat }}
+                </a>
+            {% endfor %}
+        </div>
+        
+        {% if entries %}
+            <table class="lb-table">
+                <thead>
+                    <tr>
+                        <th class="lb-rank">Rank</th>
+                        <th>Player</th>
+                        <th>Quiz Name</th>
+                        <th>Category</th>
+                        <th style="text-align: right;">Time</th>
+                        <th style="text-align: right;">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                        <tr class="lb-row">
+                            <td class="lb-rank rank-{{ loop.index }}">
+                                {% if loop.index == 1 %}
+                                    🥇 1
+                                {% elif loop.index == 2 %}
+                                    🥈 2
+                                {% elif loop.index == 3 %}
+                                    🥉 3
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </td>
+                            <td class="lb-user">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i data-lucide="user" style="width: 14px; height: 14px; color: var(--text-muted);"></i>
+                                    {{ entry.username }}
+                                </div>
+                            </td>
+                            <td>{{ entry.quiz_title }}</td>
+                            <td><span style="font-size: 12px; color: var(--secondary);">{{ entry.quiz_category }}</span></td>
+                            <td style="text-align: right; color: var(--text-muted);">
+                                {{ entry.time_taken }}s
+                            </td>
+                            <td style="text-align: right;" class="lb-score">{{ entry.percentage }}%</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div style="padding: 40px; text-align: center; color: var(--text-muted);">
+                <i data-lucide="award" style="width: 48px; height: 48px; margin-bottom: 12px;"></i>
+                <p>No high scores recorded yet for this category.</p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-sm" style="margin-top: 15px;">Play a Quiz</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

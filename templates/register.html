@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Register - TriviaGlow{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass">
+        <h2>Create Account</h2>
+        <p>Register today to build quizzes and rank on the leaderboards.</p>
+        
+        <form action="{{ url_for('register') }}" method="POST">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username" required minlength="3" maxlength="20" autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Create a strong password" required minlength="6">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                <i data-lucide="user-plus"></i> Register
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            Already have an account? <a href="{{ url_for('login') }}">Log in here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

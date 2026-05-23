@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - TriviaGlow{% endblock %}
+
+{% block content %}
+<div class="details-card glass">
+    <span class="quiz-category" style="font-size: 13px;">{{ quiz.category }}</span>
+    <h2>{{ quiz.title }}</h2>
+    <p class="desc">{{ quiz.description }}</p>
+    
+    <div class="details-stats">
+        <div class="details-stat">
+            <span class="details-stat-val" style="color: var(--secondary);">{{ quiz.questions|length }}</span>
+            <span class="details-stat-lbl">Questions</span>
+        </div>
+        
+        <div class="details-stat">
+            <span class="details-stat-val" style="color: var(--primary);">
+                {% if quiz.time_limit %}
+                    {{ quiz.time_limit }} Min
+                {% else %}
+                    No Limit
+                {% endif %}
+            </span>
+            <span class="details-stat-lbl">Time Limit</span>
+        </div>
+        
+        <div class="details-stat">
+            <span class="details-stat-val">
+                <span class="tag tag-{{ quiz.difficulty.lower() }}">{{ quiz.difficulty }}</span>
+            </span>
+            <span class="details-stat-lbl" style="margin-top: 5px;">Difficulty</span>
+        </div>
+    </div>
+    
+    <div style="border-top: 1px solid var(--border-color); padding-top: 30px; margin-top: 10px;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">
+            Created by: <strong>{{ quiz.creator_name or 'Community' }}</strong> &bull; 
+            Make sure you are ready before starting. The timer will start immediately!
+        </p>
+        
+        <div style="display: flex; justify-content: center; gap: 16px;">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i data-lucide="arrow-left"></i> Back to Dashboard</a>
+            <a href="{{ url_for('quiz_take', quiz_id=quiz._id) }}" class="btn btn-primary"><i data-lucide="play-circle"></i> Begin Quiz</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

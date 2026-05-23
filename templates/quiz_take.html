@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Taking Quiz: {{ quiz.title }} - TriviaGlow{% endblock %}
+
+{% block content %}
+<div class="quiz-play-container">
+    <!-- Header with progress & timer -->
+    <div class="quiz-header glass">
+        <div>
+            <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 2px;">{{ quiz.title }}</h2>
+            <span id="progress-text" style="font-size: 13px; color: var(--text-secondary);">Question 1 of {{ quiz.questions|length }}</span>
+        </div>
+        <div class="timer" id="timer-box">
+            <i data-lucide="clock"></i>
+            <span id="timer-display">00:00</span>
+        </div>
+    </div>
+    
+    <!-- Progress bar -->
+    <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="progress-bar-fill"></div>
+    </div>
+
+    <!-- Question Cards -->
+    <div id="questions-wrapper">
+        {% for q in quiz.questions %}
+            <div class="question-card glass {% if loop.index0 == 0 %}active{% endif %}" data-qindex="{{ loop.index0 }}">
+                <span class="question-num">Question {{ loop.index }}</span>
+                <p class="question-text">{{ q.text }}</p>
+                
+                <div class="options-list">
+                    {% for opt in q.options %}
+                        <div class="option-item" data-optindex="{{ loop.index0 }}" onclick="selectOption({{ parent_loop_index0 }}, {{ loop.index0 }}, this)">
+                            <div class="option-prefix">
+                                {% if loop.index0 == 0 %}A{% elif loop.index0 == 1 %}B{% elif loop.index0 == 2 %}C{% else %}D{% endif %}
+                            </div>
+                            <span class="option-text">{{ opt }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Actions navigation -->
+    <div class="quiz-actions">
+        <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()" disabled>
+            <i data-lucide="arrow-left"></i> Previous
+        </button>
+        
+        <button id="btn-next" class="btn btn-primary" onclick="nextQuestion()">
+            Next <i data-lucide="arrow-right"></i>
+        </button>
+        
+        <button id="btn-submit" class="btn btn-primary" style="display: none;" onclick="submitQuiz()">
+            Submit Quiz <i data-lucide="check-square"></i>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Global Quiz configuration from Jinja
+    const totalQuestions = {{ quiz.questions|length }};
+    const timeLimitMinutes = {{ quiz.time_limit or 0 }};
+    const quizId = "{{ quiz._id }}";
+    
+    let currentIdx = 0;
+    const userAnswers = {};
+    let startTime = Date.now();
+    let timerInterval;
+    let totalSeconds = 0;
+    
+    // Initialize timer
+    if (timeLimitMinutes > 0) {
+        totalSeconds = timeLimitMinutes * 60;
+        updateTimerDisplay(totalSeconds);
+        timerInterval = setInterval(() => {
+            totalSeconds--;
+            updateTimerDisplay(totalSeconds);
+            
+            // Warn when time is low (under 30s)
+            const timerBox = document.getElementById('timer-box');
+            if (totalSeconds <= 10) {
+                timerBox.className = 'timer timer-danger';
+            } else if (totalSeconds <= 30) {
+                timerBox.className = 'timer timer-warn';
+            }
+            
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                alert("Time is up! Submitting your answers.");
+                submitQuiz();
+            }
+        }, 1000);
+    } else {
+        // Stopwatch mode (no limit)
+        timerInterval = setInterval(() => {
+            totalSeconds++;
+            updateTimerDisplay(totalSeconds);
+        }, 1000);
+    }
+    
+    function updateTimerDisplay(sec) {
+        const m = Math.floor(Math.abs(sec) / 60).toString().padStart(2, '0');
+        const s = (Math.abs(sec) % 60).toString().padStart(2, '0');
+        document.getElementById('timer-display').innerText = `${m}:${s}`;
+    }
+    
+    // Update progress elements
+    function updateProgress() {
+        document.getElementById('progress-text').innerText = `Question ${currentIdx + 1} of ${totalQuestions}`;
+        const fillPct = ((currentIdx + 1) / totalQuestions) * 100;
+        document.getElementById('progress-bar-fill').style.width = `${fillPct}%`;
+        
+        // Disable/enable navigation buttons
+        document.getElementById('btn-prev').disabled = (currentIdx === 0);
+        
+        if (currentIdx === totalQuestions - 1) {
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-submit').style.display = 'inline-flex';
+        } else {
+            document.getElementById('btn-next').style.display = 'inline-flex';
+            document.getElementById('btn-submit').style.display = 'none';
+        }
+    }
+    
+    // Select option handler
+    function selectOption(qIdx, optIdx, element) {
+        // qIdx is actually currentIdx
+        userAnswers[currentIdx] = optIdx;
+        
+        // Remove 'selected' from siblings
+        const options = element.parentElement.querySelectorAll('.option-item');
+        options.forEach(opt => opt.classList.remove('selected'));
+        
+        // Add 'selected' to clicked
+        element.classList.add('selected');
+    }
+    
+    // Add manual click listeners for options in Jinja structure
+    document.querySelectorAll('.question-card').forEach((card, qIdx) => {
+        const options = card.querySelectorAll('.option-item');
+        options.forEach((opt) => {
+            opt.addEventListener('click', function() {
+                const optIdx = parseInt(this.getAttribute('data-optindex'));
+                selectOption(qIdx, optIdx, this);
+            });
+        });
+    });
+    
+    function showQuestion(idx) {
+        const cards = document.querySelectorAll('.question-card');
+        cards.forEach(card => card.classList.remove('active'));
+        cards[idx].classList.add('active');
+        currentIdx = idx;
+        updateProgress();
+    }
+    
+    function nextQuestion() {
+        if (currentIdx < totalQuestions - 1) {
+            showQuestion(currentIdx + 1);
+        }
+    }
+    
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            showQuestion(currentIdx - 01);
+        }
+    }
+    
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        
+        let secondsTaken = 0;
+        if (timeLimitMinutes > 0) {
+            secondsTaken = (timeLimitMinutes * 60) - totalSeconds;
+        } else {
+            secondsTaken = totalSeconds;
+        }
+        
+        const payload = {
+            answers: userAnswers,
+            time_taken: secondsTaken
+        };
+        
+        // Submit answers via fetch API
+        fetch(`/quiz/${quizId}/submit`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirect to success result details page
+                window.location.href = `/attempt/${data.attempt_id}`;
+            } else {
+                alert("Error submitting quiz: " + (data.error || "Unknown error"));
+            }
+        })
+        .catch(err => {
+            console.error("Submission failed:", err);
+            alert("Connection error while submitting quiz. Please try again.");
+        });
+    }
+    
+    // Initial progress check
+    updateProgress();
+</script>
+{% endblock %}

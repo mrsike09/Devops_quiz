@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results - TriviaGlow{% endblock %}
+
+{% block content %}
+<div class="result-banner glass">
+    <div class="score-circle">
+        <span class="score-num">{{ attempt.score }}/{{ attempt.total_questions }}</span>
+        <span class="score-lbl">Correct</span>
+    </div>
+    
+    <h2 class="result-msg">
+        {% if attempt.percentage >= 100 %}
+            🏆 Perfect Score! Outstanding!
+        {% elif attempt.percentage >= 80 %}
+            🌟 Great Job! You nailed it!
+        {% elif attempt.percentage >= 50 %}
+            👍 Good Effort! Keep practicing!
+        {% else %}
+            📚 Time to Study! Try again!
+        {% endif %}
+    </h2>
+    
+    <p class="result-detail-text">
+        You scored <strong>{{ attempt.percentage }}%</strong> in 
+        <strong>
+            {% if attempt.time_taken >= 60 %}
+                {{ attempt.time_taken // 60 }}m {{ attempt.time_taken % 60 }}s
+            {% else %}
+                {{ attempt.time_taken }}s
+            {% endif %}
+        </strong>.
+    </p>
+    
+    <div style="margin-top: 24px; display: flex; justify-content: center; gap: 16px;">
+        <a href="{{ url_for('quiz_take', quiz_id=attempt.quiz_id) }}" class="btn btn-primary"><i data-lucide="refresh-cw"></i> Try Again</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary"><i data-lucide="home"></i> Dashboard</a>
+        <a href="{{ url_for('leaderboard', category=attempt.quiz_category) }}" class="btn btn-secondary"><i data-lucide="trophy"></i> Leaderboard</a>
+    </div>
+</div>
+
+<div class="review-section-title">
+    <i data-lucide="eye" style="color: var(--secondary);"></i> Review Your Answers
+</div>
+
+<div>
+    {% for q in quiz.questions %}
+        {% set q_idx = loop.index0 %}
+        <!-- user answer selection string key -->
+        {% set user_ans = attempt.answers.get(q_idx|string) %}
+        {% if user_ans is not none %}{% set user_ans = user_ans|int %}{% endif %}
+        {% set correct_ans = q.correct_option|int %}
+        {% set is_correct = (user_ans == correct_ans) %}
+        
+        <div class="review-card glass" style="border-left: 4px solid {% if is_correct %}var(--success){% else %}var(--danger){% endif %};">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <span class="question-num" style="color: var(--text-muted);">Question {{ loop.index }}</span>
+                {% if is_correct %}
+                    <span class="review-status review-status-correct"><i data-lucide="check" style="width: 12px; height: 12px;"></i> Correct</span>
+                {% else %}
+                    <span class="review-status review-status-incorrect"><i data-lucide="x" style="width: 12px; height: 12px;"></i> Incorrect</span>
+                {% endif %}
+            </div>
+            
+            <p class="question-text" style="font-size: 18px; margin-bottom: 20px;">{{ q.text }}</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                {% for opt in q.options %}
+                    {% set opt_idx = loop.index0 %}
+                    
+                    {% if opt_idx == correct_ans %}
+                        <!-- This is the correct option -->
+                        <div class="review-option review-option-correct">
+                            <i data-lucide="check" style="color: var(--success); width: 16px; height: 16px;"></i>
+                            <span>{{ opt }}</span>
+                            <span style="font-size: 11px; font-weight: 700; color: var(--success); margin-left: auto;">CORRECT ANSWER</span>
+                        </div>
+                    {% elif opt_idx == user_ans %}
+                        <!-- This is the user's wrong answer -->
+                        <div class="review-option review-option-incorrect">
+                            <i data-lucide="x" style="color: var(--danger); width: 16px; height: 16px;"></i>
+                            <span>{{ opt }}</span>
+                            <span style="font-size: 11px; font-weight: 700; color: var(--danger); margin-left: auto;">YOUR SELECTION</span>
+                        </div>
+                    {% else %}
+                        <!-- Unselected wrong option -->
+                        <div class="review-option">
+                            <span style="width: 16px;"></span>
+                            <span>{{ opt }}</span>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if q.explanation %}
+                <div class="explanation-box">
+                    <div class="explanation-title"><i data-lucide="lightbulb" style="width: 14px; height: 14px; display:inline-block; vertical-align:-2px; color: var(--warning);"></i> Explanation:</div>
+                    <p>{{ q.explanation }}</p>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

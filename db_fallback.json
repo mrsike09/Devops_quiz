@@ -1,0 +1,205 @@
+{
+    "quizzes": [
+        {
+            "_id": "seed-quiz-tech",
+            "title": "Tech & Programming Trivia",
+            "description": "Test your knowledge on computer science, coding, and tech history!",
+            "category": "Technology",
+            "difficulty": "Medium",
+            "time_limit": 5,
+            "creator_name": "System",
+            "questions": [
+                {
+                    "text": "Who is considered the father of computers?",
+                    "options": [
+                        "Alan Turing",
+                        "Charles Babbage",
+                        "Bill Gates",
+                        "Ada Lovelace"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "Charles Babbage designed the Analytical Engine, which is considered the first general mechanical computer concept."
+                },
+                {
+                    "text": "What does CSS stand for in web design?",
+                    "options": [
+                        "Computer Style Sheets",
+                        "Cascading Style Sheets",
+                        "Creative Style System",
+                        "Complex Style Sheets"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "CSS stands for Cascading Style Sheets, used to describe the presentation of a document written in HTML."
+                },
+                {
+                    "text": "Which programming language was originally named 'Oak'?",
+                    "options": [
+                        "Java",
+                        "C++",
+                        "Python",
+                        "Ruby"
+                    ],
+                    "correct_option": 0,
+                    "explanation": "Java was originally initiated by James Gosling and named 'Oak' after an oak tree that stood outside his office."
+                },
+                {
+                    "text": "What is the primary protocol used to secure communication over the web?",
+                    "options": [
+                        "HTTP",
+                        "FTP",
+                        "HTTPS",
+                        "SMTP"
+                    ],
+                    "correct_option": 2,
+                    "explanation": "HTTPS (Hypertext Transfer Protocol Secure) encrypts communication using TLS/SSL to protect data integrity and privacy."
+                },
+                {
+                    "text": "Which of the following is not a relational database system?",
+                    "options": [
+                        "PostgreSQL",
+                        "MySQL",
+                        "MongoDB",
+                        "Oracle"
+                    ],
+                    "correct_option": 2,
+                    "explanation": "MongoDB is a document-oriented, non-relational (NoSQL) database, whereas MySQL, PostgreSQL, and Oracle are relational (SQL) databases."
+                }
+            ]
+        },
+        {
+            "_id": "seed-quiz-geo",
+            "title": "World Geography Challenge",
+            "description": "Embark on a journey to identify countries, capitals, and natural wonders!",
+            "category": "Geography",
+            "difficulty": "Easy",
+            "time_limit": 4,
+            "creator_name": "System",
+            "questions": [
+                {
+                    "text": "What is the capital of Australia?",
+                    "options": [
+                        "Sydney",
+                        "Melbourne",
+                        "Canberra",
+                        "Brisbane"
+                    ],
+                    "correct_option": 2,
+                    "explanation": "Canberra is the capital city of Australia, selected as a compromise between rival cities Sydney and Melbourne."
+                },
+                {
+                    "text": "Which is the largest ocean on Earth?",
+                    "options": [
+                        "Atlantic Ocean",
+                        "Indian Ocean",
+                        "Southern Ocean",
+                        "Pacific Ocean"
+                    ],
+                    "correct_option": 3,
+                    "explanation": "The Pacific Ocean is the largest and deepest of Earth's oceanic divisions, covering about 30% of the Earth's surface."
+                },
+                {
+                    "text": "Which country is home to the landmark 'Machu Picchu'?",
+                    "options": [
+                        "Peru",
+                        "Brazil",
+                        "Colombia",
+                        "Mexico"
+                    ],
+                    "correct_option": 0,
+                    "explanation": "Machu Picchu is a 15th-century Inca citadel located in the Eastern Cordillera of southern Peru."
+                },
+                {
+                    "text": "What is the longest river in the world?",
+                    "options": [
+                        "Amazon River",
+                        "Nile River",
+                        "Yangtze River",
+                        "Mississippi River"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "While there is ongoing debate, the Nile River is traditionally considered the longest river in the world, stretching over 6,650 kilometers."
+                },
+                {
+                    "text": "Which European nation features the active volcano Mount Etna?",
+                    "options": [
+                        "Greece",
+                        "Italy",
+                        "Spain",
+                        "Iceland"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "Mount Etna is an active stratovolcano on the east coast of Sicily, Italy."
+                }
+            ]
+        },
+        {
+            "_id": "seed-quiz-sci",
+            "title": "Cosmic Science Quiz",
+            "description": "Test your grasp on astronomy, physics, and the mysteries of the universe!",
+            "category": "Science",
+            "difficulty": "Hard",
+            "time_limit": 6,
+            "creator_name": "System",
+            "questions": [
+                {
+                    "text": "Approximately how long does it take light from the Sun to reach Earth?",
+                    "options": [
+                        "8 seconds",
+                        "8 minutes",
+                        "8 hours",
+                        "8 days"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "Light travels at 300,000 km/s. Given the Sun's distance from Earth, it takes about 8 minutes and 20 seconds for sunlight to reach us."
+                },
+                {
+                    "text": "Which particle in an atom carries a negative electrical charge?",
+                    "options": [
+                        "Proton",
+                        "Neutron",
+                        "Electron",
+                        "Quark"
+                    ],
+                    "correct_option": 2,
+                    "explanation": "Electrons carry a negative charge (-1e) and orbit the atomic nucleus, which contains protons (positive) and neutrons (neutral)."
+                },
+                {
+                    "text": "What is the main element that makes up the Sun?",
+                    "options": [
+                        "Helium",
+                        "Oxygen",
+                        "Hydrogen",
+                        "Carbon"
+                    ],
+                    "correct_option": 2,
+                    "explanation": "Hydrogen makes up about 73% of the Sun's mass, with helium constituting most of the remaining 25%."
+                },
+                {
+                    "text": "Who formulated the laws of electromagnetic induction?",
+                    "options": [
+                        "Nikola Tesla",
+                        "Michael Faraday",
+                        "James Clerk Maxwell",
+                        "Heinrich Hertz"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "Michael Faraday discovered electromagnetic induction in 1831, showing that a magnetic field can induce an electric current."
+                },
+                {
+                    "text": "What is the escape velocity required to break free from Earth's gravity?",
+                    "options": [
+                        "5.5 km/s",
+                        "11.2 km/s",
+                        "24.8 km/s",
+                        "42.1 km/s"
+                    ],
+                    "correct_option": 1,
+                    "explanation": "The escape velocity of Earth is approximately 11.2 kilometers per second (about 40,320 km/h or 25,050 mph)."
+                }
+            ]
+        }
+    ],
+    "users": [],
+    "attempts": [],
+    "leaderboard": []
+}

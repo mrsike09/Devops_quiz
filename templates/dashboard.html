@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TriviaGlow{% endblock %}
+
+{% block content %}
+<!-- Welcome Header -->
+<div class="welcome-card glass">
+    <div class="welcome-card-content">
+        {% if session.get('username') %}
+            <h1>Welcome, {{ session.get('username') }}!</h1>
+            <p>Ready to test your knowledge or create a new challenge for the community?</p>
+        {% else %}
+            <h1>Unleash Your Inner Trivia Master!</h1>
+            <p>Join TriviaGlow to track your quiz performance, compete on the global leaderboard, and create custom quizzes.</p>
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('register') }}" class="btn btn-primary"><i data-lucide="user-plus"></i> Join Now</a>
+                <a href="{{ url_for('login') }}" class="btn btn-secondary"><i data-lucide="log-in"></i> Sign In</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid-2">
+    <!-- Left Column: Quiz Finder and List -->
+    <div>
+        <div class="filter-section">
+            <form action="{{ url_for('dashboard') }}" method="GET" class="search-box">
+                <input type="text" name="search" class="search-input" placeholder="Search quizzes by title or keyword..." value="{{ search }}">
+                {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+                {% if difficulty %}<input type="hidden" name="difficulty" value="{{ difficulty }}">{% endif %}
+                <button type="submit" class="btn btn-primary search-btn"><i data-lucide="search"></i></button>
+            </form>
+            
+            <div class="filter-selects">
+                <select onchange="location = this.value;" class="select-input">
+                    <option value="{{ url_for('dashboard', search=search, difficulty=difficulty) }}">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ url_for('dashboard', search=search, category=cat, difficulty=difficulty) }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                
+                <select onchange="location = this.value;" class="select-input">
+                    <option value="{{ url_for('dashboard', search=search, category=category) }}">All Difficulties</option>
+                    <option value="{{ url_for('dashboard', search=search, category=category, difficulty='Easy') }}" {% if difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                    <option value="{{ url_for('dashboard', search=search, category=category, difficulty='Medium') }}" {% if difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value="{{ url_for('dashboard', search=search, category=category, difficulty='Hard') }}" {% if difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="sparkles" style="color: var(--secondary);"></i> Available Quizzes
+        </h3>
+        
+        {% if quizzes %}
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;">
+                {% for quiz in quizzes %}
+                    <div class="quiz-card glass glass-glow">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div>
+                                <span class="quiz-category">{{ quiz.category }}</span>
+                                <h3 class="quiz-title">{{ quiz.title }}</h3>
+                            </div>
+                            <span class="tag tag-{{ quiz.difficulty.lower() }}">{{ quiz.difficulty }}</span>
+                        </div>
+                        <p class="quiz-desc">{{ quiz.description }}</p>
+                        <div class="quiz-meta">
+                            <span>By: <strong>{{ quiz.creator_name or 'Community' }}</strong></span>
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <span><i data-lucide="help-circle" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px;"></i> {{ quiz.questions|length }} Qs</span>
+                                {% if quiz.time_limit %}
+                                    <span><i data-lucide="clock" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px;"></i> {{ quiz.time_limit }} min</span>
+                                {% else %}
+                                    <span><i data-lucide="infinity" style="width: 14px; height: 14px; display: inline-block; vertical-align: -2px;"></i> No limit</span>
+                                {% endif %}
+                                <a href="{{ url_for('quiz_details', quiz_id=quiz._id) }}" class="btn btn-primary btn-sm"><i data-lucide="play" style="width: 12px; height: 12px;"></i> Start</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="glass" style="padding: 40px; text-align: center; border-radius: var(--radius-md); color: var(--text-secondary);">
+                <i data-lucide="help-circle" style="width: 48px; height: 48px; margin-bottom: 12px; color: var(--text-muted);"></i>
+                <p>No quizzes match your filters. Try search terms or check other categories!</p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-sm" style="margin-top: 15px;">Clear Filters</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Column: User Stats & Attempts (For logged in users) -->
+    <div>
+        {% if session.get('user_id') and user_stats %}
+            <div class="profile-card glass" style="text-align: left; margin-bottom: 24px; padding: 24px;">
+                <h3 style="margin-bottom: 20px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="user"></i> Your Performance
+                </h3>
+                
+                <div class="stats-bar" style="flex-wrap: wrap;">
+                    <div class="stat-box glass" style="padding: 12px;">
+                        <div class="stat-val" style="font-size: 20px;">{{ user_stats.quizzes_taken }}</div>
+                        <div class="stat-lbl" style="font-size: 10px;">Taken</div>
+                    </div>
+                    <div class="stat-box glass" style="padding: 12px;">
+                        <div class="stat-val" style="font-size: 20px; color: var(--secondary);">{{ user_stats.average_score }}%</div>
+                        <div class="stat-lbl" style="font-size: 10px;">Avg Score</div>
+                    </div>
+                    <div class="stat-box glass" style="padding: 12px;">
+                        <div class="stat-val" style="font-size: 20px; color: var(--primary);">{{ user_stats.total_points }}</div>
+                        <div class="stat-lbl" style="font-size: 10px;">XP Points</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('profile') }}" class="btn btn-secondary btn-sm" style="width: 100%;"><i data-lucide="bar-chart-2"></i> View Detailed Progress</a>
+            </div>
+            
+            <div class="glass" style="padding: 24px; border-radius: var(--radius-lg);">
+                <h3 style="margin-bottom: 16px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="history"></i> Recent Attempts
+                </h3>
+                {% if recent_attempts %}
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        {% for att in recent_attempts %}
+                            <div class="glass" style="padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h5 style="font-size: 13px; font-weight: 700; margin-bottom: 2px;">{{ att.quiz_title }}</h5>
+                                    <span style="font-size: 10px; color: var(--text-muted);">{{ att.created_at.split('T')[0] }}</span>
+                                </div>
+                                <span class="tag tag-easy" style="font-size: 11px;">{{ att.percentage }}%</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="font-size: 13px; color: var(--text-muted); text-align: center;">No attempts recorded yet. Play your first quiz!</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- Promo box for guests -->
+            <div class="glass" style="padding: 30px; border-radius: var(--radius-lg); text-align: center; border-left: 4px solid var(--primary);">
+                <h3 style="margin-bottom: 12px; font-weight: 700;">Compete with Others!</h3>
+                <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px;">
+                    Register an account to see your name on the Leaderboard, track quiz stats, unlock mastery achievements, and publish your own custom trivia quizzes!
+                </p>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i> Create Free Account</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
